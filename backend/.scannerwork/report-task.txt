@@ -1,0 +1,7 @@
+organization=myorganizationsacheen
+projectKey=myorganizationsacheen_backend
+serverUrl=https://sonarcloud.io
+serverVersion=8.0.0.78264
+dashboardUrl=https://sonarcloud.io/dashboard?id=myorganizationsacheen_backend
+ceTaskId=AZueGNsLFfE6nmgAM5wP
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZueGNsLFfE6nmgAM5wP
