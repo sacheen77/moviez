@@ -1,19 +1,19 @@
-# Use lightweight Node.js image
-FROM node:24-alpine
+FROM node:24-alpine AS build
 
 WORKDIR /usr/src/app
 
-# Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --production
+RUN npm ci --omit=dev
 
-# Copy backend source code
 COPY . .
 
-# Expose port
+FROM node:24-alpine AS runtime
+
+WORKDIR /usr/src/app
+
+COPY --from=build /usr/src/app .
+
 EXPOSE 5000
 
-# Start backend
 CMD ["node", "src/app.js"]

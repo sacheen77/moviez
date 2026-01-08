@@ -1,24 +1,28 @@
-# Stage 1: Build frontend
+
+# Stage 1: Build Frontend
 FROM node:24-alpine AS build
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-RUN npm install
 
+# Install dependencies cleanly
+RUN npm ci
+
+# Copy source code
 COPY . .
 
-# Build React frontend
+# Build React/Vite app
 RUN npm run build
 
-# Stage 2: Serve with Nginx
+# Stage 2: Nginx Runtime
 FROM nginx:alpine
 
-# Copy build output to nginx
-COPY --from=build /usr/src/app/dist /usr/share/nginx/html
+RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy custom nginx config if needed
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+COPY --from=build /usr/src/app/dist /usr/share/nginx/html
 
 EXPOSE 80
 
