@@ -9,9 +9,12 @@ export default function Home() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/movies")
+      .get("/movies")
       .then((res) => setMovies(res.data))
-      .catch(() => setMovies([]));
+      .catch((err) => {
+        console.error("API error:", err);
+        setMovies([]);
+      });
   }, []);
 
   return (
