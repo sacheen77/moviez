@@ -6,11 +6,12 @@ import "./Home.css";
 
 export default function Home() {
   const [movies, setMovies] = useState([]);
+  const API = "/api";
   
 
   useEffect(() => {
   axios
-    .get(`${import.meta.env.VITE_API_BASE_URL}/movies`)
+    .get(`${API}/movies`)
     //.get("http://localhost:5000/movies")
     .then((res) => {
       if (Array.isArray(res.data)) {
