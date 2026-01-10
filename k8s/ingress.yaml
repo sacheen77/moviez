@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: moviez-ingress
+  namespace: moviez
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: moviezlist.site
+      http:
+        paths:
+          # -------- FRONTEND --------
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: movie-frontend
+                port:
+                  number: 80
+

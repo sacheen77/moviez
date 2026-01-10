@@ -6,28 +6,46 @@ import "./Home.css";
 
 export default function Home() {
   const [movies, setMovies] = useState([]);
+  
 
   useEffect(() => {
-    axios
-      .get("/movies")
-      .then((res) => setMovies(res.data))
-      .catch((err) => {
-        console.error("API error:", err);
+  axios
+    .get(`${import.meta.env.VITE_API_BASE_URL}/movies`)
+    //.get("http://localhost:5000/movies")
+    .then((res) => {
+      if (Array.isArray(res.data)) {
+        setMovies(res.data);
+      } else {
         setMovies([]);
-      });
-  }, []);
+      }
+    })
+    .catch(() => {
+      setMovies([]);
+    });
+}, []);
+
 
   return (
     <div className="container">
       <h1 className="title">Movie Collection</h1>
 
       <div className="movie-grid">
+        {movies.length === 0 && (
+          <p className="empty-text">No movies available</p>
+        )}
+
         {movies.map((movie) => (
-          <Link to={`/movie/${movie.id}`} key={movie.id} className="movie-card">
+          <Link
+            to={`/movie/${movie.id}`}
+            key={movie.id}
+            className="movie-card"
+          >
             <img
               src={movie.poster || defaultPoster}
-              onError={(e) => (e.target.src = defaultPoster)}
               alt={movie.title}
+              onError={(e) => {
+                e.target.src = defaultPoster;
+              }}
             />
 
             <div className="movie-info">
