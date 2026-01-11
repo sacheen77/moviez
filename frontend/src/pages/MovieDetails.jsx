@@ -21,7 +21,7 @@ export default function MovieDetails() {
   }
 
   if (movie === undefined) {
-    return <div className="loading">Loading...</div>;
+    return <div className="loading">Loading......</div>;
   }
 
   return (
