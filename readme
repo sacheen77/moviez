@@ -1,0 +1,190 @@
+# Moviez – Automated CI/CD Deployment on Kubernetes
+
+## Live Application
+
+**URL:**
+[http://moviezlist.site/](http://moviezlist.site/)
+
+## Project Overview
+
+Moviez is a containerized full-stack web application deployed on a Kubernetes cluster with a fully automated CI/CD pipeline.
+The project demonstrates real-world DevOps practices including continuous integration, container security scanning, Kubernetes deployment, and domain-based access using an Ingress controller.
+
+Every code change pushed to the GitHub repository automatically triggers a Jenkins pipeline that builds, tests, scans, publishes, and deploys the application without manual intervention.
+
+---
+
+## Technology Stack
+
+### Application
+
+* Frontend: React
+* Backend: Node.js (Express)
+* API exposed via `/api`
+
+### CI/CD
+
+* Jenkins (Pipeline as Code)
+* GitHub Webhooks
+* SonarCloud (Code Quality & Coverage)
+* Trivy (Container Vulnerability Scanning)
+
+### Containerization & Registry
+
+* Docker
+* AWS Public ECR
+
+### Orchestration & Networking
+
+* Kubernetes (K3s)
+* Traefik Ingress Controller
+* Custom Domain: `moviezlist.site`
+
+---
+
+## High-Level Architecture
+
+```
+GitHub Repository
+        |
+        | (Webhook)
+        v
+Jenkins Pipeline
+        |
+        |-- Tests & SonarCloud
+        |-- Docker Build
+        |-- Trivy Security Scan
+        |-- Push Images to AWS ECR
+        |-- kubectl apply
+        v
+Kubernetes Cluster
+        |
+        |-- Deployment (Frontend + Backend)
+        |-- Service
+        |-- Ingress (Traefik)
+        v
+Public Domain
+http://moviezlist.site/
+```
+
+---
+
+## CI/CD Pipeline Workflow
+
+1. **Source Code Checkout**
+
+   * Jenkins pulls code from GitHub on every commit to the main branch.
+
+2. **Testing & Code Quality**
+
+   * Backend unit tests executed with Jest.
+   * Frontend tests executed with Vitest.
+   * Test coverage and static analysis pushed to SonarCloud.
+
+3. **Docker Image Build**
+
+   * Separate Docker images built for frontend and backend.
+   * Images tagged using the Jenkins build number.
+
+4. **Security Scanning**
+
+   * Trivy scans both images.
+   * Pipeline fails if CRITICAL vulnerabilities are found.
+
+5. **Image Publishing**
+
+   * Images pushed to AWS Public ECR.
+
+6. **Kubernetes Deployment**
+
+   * Namespace, Deployment, Service, and Ingress applied using `kubectl`.
+   * Rolling updates ensure zero downtime.
+
+7. **Cleanup**
+
+   * Local Docker images pruned on the Jenkins node.
+
+---
+
+## Kubernetes Deployment Details
+
+* **Namespace:** `moviez`
+* **Deployment:**
+
+  * Runs frontend and backend containers
+  * Multiple replicas for availability
+* **Service:**
+
+  * ClusterIP for internal routing
+* **Ingress:**
+
+  * Traefik Ingress Controller
+  * Host-based routing using `moviezlist.site`
+
+The frontend serves the UI, while API requests are routed internally to the backend container.
+
+---
+
+## Security Practices
+
+### CI/CD Security
+
+* Dedicated IAM user created for Jenkins
+* Least-privilege access to AWS services
+* No root or admin credentials used
+
+### Secrets Management
+
+* AWS credentials, Sonar token, and kubeconfig stored securely in Jenkins Credentials
+* No secrets committed to source control
+
+### Container Security
+
+* Trivy integrated into the pipeline
+* Builds blocked on critical vulnerabilities
+
+---
+
+## Code Quality (SonarCloud)
+
+* Automated analysis for:
+
+  * Bugs
+  * Code smells
+  * Test coverage
+* Results uploaded on every pipeline execution
+* Ensures maintainable and production-ready code
+
+---
+
+## Deployment Strategy
+
+* Rolling updates via Kubernetes
+* No downtime during deployments
+* Automatic rollback protection via pipeline failure handling
+
+---
+
+## How to Access the Application
+
+Once the pipeline completes successfully, the application is available at:
+
+👉 **[http://moviezlist.site/](http://moviezlist.site/)**
+
+No ports or additional configuration required.
+
+---
+
+## Summary
+
+This project demonstrates:
+
+* End-to-end CI/CD automation
+* Secure Docker image lifecycle
+* Kubernetes-based application deployment
+* Production-style ingress and domain routing
+* Industry best practices for DevOps workflows
+
+It is designed to reflect how modern applications are built, secured, and deployed in real production environments.
+
+
