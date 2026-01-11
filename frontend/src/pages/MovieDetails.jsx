@@ -9,10 +9,12 @@ import "./MovieDetails.css";
 export default function MovieDetails() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
+  const API = "/api"; 
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/movies/${id}`)
+      //.get(`http://localhost:5000/movies/${id}`)
+      .get(`${API}/movies/${id}`)
       .then((res) => setMovie(res.data))
       .catch(() => setMovie(null));
   }, [id]);
