@@ -1,23 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: movie-backend
+  name: moviez-app
   namespace: moviez
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: movie-backend
+      app: moviez
   template:
     metadata:
       labels:
-        app: movie-backend
+        app: moviez
     spec:
       containers:
         - name: backend
           image: public.ecr.aws/p3h2q3u4/moviez/backend:latest
+          
           ports:
             - containerPort: 5000
-          env:
-            - name: NODE_ENV
-              value: "production"
+
+        - name: frontend
+          image: public.ecr.aws/p3h2q3u4/moviez/frontend:latest
+          ports:
+            - containerPort: 80

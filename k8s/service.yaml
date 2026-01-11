@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: movie-frontend
+  name: moviez-service
   namespace: moviez
 spec:
   selector:
-    app: movie-frontend
+    app: moviez
   ports:
     - port: 80
       targetPort: 80
-  type: ClusterIP
+      nodePort: 30080
