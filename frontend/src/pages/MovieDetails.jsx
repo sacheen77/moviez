@@ -2,24 +2,25 @@ import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import defaultPoster from "../assets/defaultPoster.jpg";
-import "./Home.css";
 import "./MovieDetails.css";
-
 
 export default function MovieDetails() {
   const { id } = useParams();
-  const [movie, setMovie] = useState(null);
-  const API = "/api"; 
+  const [movie, setMovie] = useState(undefined);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     axios
-      //.get(`http://localhost:5000/movies/${id}`)
-      .get(`${API}/movies/${id}`)
+      .get(`/api/movies/${id}`)
       .then((res) => setMovie(res.data))
-      .catch(() => setMovie(null));
+      .catch(() => setError(true));
   }, [id]);
 
-  if (!movie) {
+  if (error) {
+    return <div className="loading">Movie not found</div>;
+  }
+
+  if (movie === undefined) {
     return <div className="loading">Loading...</div>;
   }
 
@@ -42,10 +43,6 @@ export default function MovieDetails() {
           </div>
 
           <p className="description">{movie.description}</p>
-
-          <div className="meta-box">
-            <strong>Movie ID:</strong> {movie.id}
-          </div>
 
           <Link to="/" className="back-btn">⬅ Back</Link>
         </div>
