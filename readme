@@ -184,7 +184,3 @@ This project demonstrates:
 * Kubernetes-based application deployment
 * Production-style ingress and domain routing
 * Industry best practices for DevOps workflows
-
-It is designed to reflect how modern applications are built, secured, and deployed in real production environments.
-
-
