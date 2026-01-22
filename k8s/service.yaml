@@ -3,9 +3,19 @@ kind: Service
 metadata:
   name: moviez-service
   namespace: moviez
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "5000"
 spec:
   selector:
     app: moviez
   ports:
-    - port: 80
+    # - port: 80
+    #   targetPort: 80
+    - name: frontend
+      port: 80
       targetPort: 80
+    - name: backend
+      port: 5000
+      targetPort: 5000

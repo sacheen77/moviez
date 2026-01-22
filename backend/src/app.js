@@ -1,7 +1,17 @@
 const express = require("express");
 const movies = require("./movies");
+const client = require("prom-client"); 
 
 const app = express();
+
+// collect default Node.js metrics (CPU, memory, event loop, etc.)
+client.collectDefaultMetrics();
+
+// expose /metrics endpoint for Prometheus
+app.get("/metrics", async (req, res) => {
+  res.set("Content-Type", client.register.contentType);
+  res.end(await client.register.metrics());
+});
 
 app.get("/api/movies", (req, res) => {
   res.json(movies);
