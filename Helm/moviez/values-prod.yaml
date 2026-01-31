@@ -2,11 +2,11 @@ replicaCount: 2
 
 backend:
   image:
-    tag: v2
+    tag: latest
 
 frontend:
   image:
-    tag: v2
+    tag: latest
 
 ingress:
   host: moviezlist.site
