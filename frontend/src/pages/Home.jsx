@@ -28,7 +28,8 @@ export default function Home() {
 
   return (
     <div className="container">
-      <h1 className="title">sacheen Movie Collections</h1>
+      <h1 className="title">Movie Collection</h1>
+
       <div className="movie-grid">
         {movies.length === 0 && (
           <p className="empty-text">No movies available</p>
@@ -61,7 +62,5 @@ export default function Home() {
         ))}
       </div>
     </div>
-   
-    
   );
 }
