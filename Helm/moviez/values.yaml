@@ -24,3 +24,7 @@ ingress:
   enabled: true
   className: traefik
   host: moviezlist.site
+
+httpRoute:
+  enabled: false
+
