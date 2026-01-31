@@ -1,0 +1,7 @@
+apiVersion: v2
+name: moviez
+description: Moviez fullstack application (frontend + backend)
+type: application
+
+version: 1.0.0
+appVersion: "latest"

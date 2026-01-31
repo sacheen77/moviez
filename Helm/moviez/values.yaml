@@ -1,0 +1,26 @@
+namespace: moviez
+
+replicaCount: 2
+
+backend:
+  image:
+    repository: public.ecr.aws/p3h2q3u4/moviez/backend
+    tag: latest
+  port: 5000
+
+frontend:
+  image:
+    repository: public.ecr.aws/p3h2q3u4/moviez/frontend
+    tag: latest
+  port: 80
+
+service:
+  name: moviez-service
+  ports:
+    frontend: 80
+    backend: 5000
+
+ingress:
+  enabled: true
+  className: traefik
+  host: moviezlist.site
