@@ -28,6 +28,7 @@ export default function Home() {
 
   return (
     <div className="container">
+       <h1>end</h1>
       <h1 className="title">Movie Collection</h1>
 
       <div className="movie-grid">
@@ -62,7 +63,7 @@ export default function Home() {
         ))}
       </div>
     </div>
-    <h1>end</h1>
+   
     
   );
 }
