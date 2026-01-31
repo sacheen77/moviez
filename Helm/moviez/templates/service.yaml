@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.name }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "{{ .Values.backend.port }}"
+spec:
+  selector:
+    app: moviez
+  ports:
+    - name: frontend
+      port: {{ .Values.service.ports.frontend }}
+      targetPort: {{ .Values.frontend.port }}
+    - name: backend
+      port: {{ .Values.service.ports.backend }}
+      targetPort: {{ .Values.backend.port }}
