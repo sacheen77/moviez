@@ -1,0 +1,12 @@
+replicaCount: 1
+
+backend:
+  image:
+    tag: dev
+
+frontend:
+  image:
+    tag: dev
+
+ingress:
+  host: dev.moviezlist.site
