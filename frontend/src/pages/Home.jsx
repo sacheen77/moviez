@@ -62,7 +62,7 @@ export default function Home() {
         ))}
       </div>
     </div>
-    <h1>end</h2>
+    <h1>end</h1>
     
   );
 }
