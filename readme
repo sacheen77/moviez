@@ -1,44 +1,48 @@
-# Moviez – Automated CI/CD Deployment on Kubernetes
+# Moviez – Automated CI/CD Deployment on Kubernetes with Helm & Monitoring
 
 ## Live Application
 
-**URL:**
-[http://moviezlist.site/](http://moviezlist.site/)
+**URL:**  
+👉 http://moviezlist.site/
+
+---
 
 ## Project Overview
 
-Moviez is a containerized full-stack web application deployed on a Kubernetes cluster with a fully automated CI/CD pipeline.
-The project demonstrates real-world DevOps practices including continuous integration, container security scanning, Kubernetes deployment, and domain-based access using an Ingress controller.
+**Moviez** is a production-grade, containerized full-stack web application deployed on a Kubernetes cluster using **Helm-based deployments** and a **fully automated CI/CD pipeline**.
 
-Every code change pushed to the GitHub repository automatically triggers a Jenkins pipeline that builds, tests, scans, publishes, and deploys the application without manual intervention.
+This project demonstrates real-world DevOps practices including CI/CD automation, Helm release management, container security scanning, Kubernetes orchestration, centralized monitoring, and domain-based ingress routing.
+
+Every code change pushed to GitHub automatically triggers a Jenkins pipeline that builds, tests, scans, publishes, and deploys the application without manual intervention.
 
 ---
 
 ## Technology Stack
 
 ### Application
-
-* Frontend: React
-* Backend: Node.js (Express)
-* API exposed via `/api`
+- Frontend: React
+- Backend: Node.js (Express)
+- API Endpoint: `/api`
 
 ### CI/CD
-
-* Jenkins (Pipeline as Code)
-* GitHub Webhooks
-* SonarCloud (Code Quality & Coverage)
-* Trivy (Container Vulnerability Scanning)
+- Jenkins (Pipeline as Code)
+- GitHub Webhooks
+- SonarCloud (Code Quality & Coverage)
+- Trivy (Container Vulnerability Scanning)
 
 ### Containerization & Registry
+- Docker
+- AWS Public ECR
 
-* Docker
-* AWS Public ECR
+### Orchestration, Packaging & Networking
+- Kubernetes (K3s)
+- Helm (Application Packaging & Release Management)
+- Traefik Ingress Controller
+- Custom Domain: `moviezlist.site`
 
-### Orchestration & Networking
-
-* Kubernetes (K3s)
-* Traefik Ingress Controller
-* Custom Domain: `moviezlist.site`
+### Monitoring & Observability
+- Prometheus (Metrics Collection)
+- Grafana (Visualization & Dashboards)
 
 ---
 
@@ -55,13 +59,17 @@ Jenkins Pipeline
         |-- Docker Build
         |-- Trivy Security Scan
         |-- Push Images to AWS ECR
-        |-- kubectl apply
+        |-- Helm Upgrade / Install
         v
 Kubernetes Cluster
         |
-        |-- Deployment (Frontend + Backend)
-        |-- Service
+        |-- Helm Release (moviez)
+        |-- Deployments (Frontend & Backend)
+        |-- Services
         |-- Ingress (Traefik)
+        |
+        |-- Prometheus
+        |-- Grafana
         v
 Public Domain
 http://moviezlist.site/
@@ -72,96 +80,126 @@ http://moviezlist.site/
 ## CI/CD Pipeline Workflow
 
 1. **Source Code Checkout**
-
-   * Jenkins pulls code from GitHub on every commit to the main branch.
+   - Jenkins pulls code from GitHub on every commit to the `main` branch.
 
 2. **Testing & Code Quality**
-
-   * Backend unit tests executed with Jest.
-   * Frontend tests executed with Vitest.
-   * Test coverage and static analysis pushed to SonarCloud.
+   - Backend unit tests using Jest
+   - Frontend tests using Vitest
+   - Static analysis and coverage reporting via SonarCloud
 
 3. **Docker Image Build**
-
-   * Separate Docker images built for frontend and backend.
-   * Images tagged using the Jenkins build number.
+   - Separate Docker images built for frontend and backend
+   - Images tagged using Jenkins build number
 
 4. **Security Scanning**
-
-   * Trivy scans both images.
-   * Pipeline fails if CRITICAL vulnerabilities are found.
+   - Trivy scans images for vulnerabilities
+   - Pipeline fails on CRITICAL vulnerabilities
 
 5. **Image Publishing**
+   - Docker images pushed to AWS Public ECR
 
-   * Images pushed to AWS Public ECR.
-
-6. **Kubernetes Deployment**
-
-   * Namespace, Deployment, Service, and Ingress applied using `kubectl`.
-   * Rolling updates ensure zero downtime.
+6. **Helm-Based Kubernetes Deployment**
+   - Application deployed using Helm charts
+   - Jenkins executes:
+     ```
+     helm upgrade --install moviez-prod ./helm/moviez \
+       -n moviez \
+       -f values-prod.yaml
+     ```
 
 7. **Cleanup**
+   - Local Docker images pruned on Jenkins node
 
-   * Local Docker images pruned on the Jenkins node.
+---
+
+## Helm Deployment Details
+
+- Helm Chart: `moviez`
+- Helm Release: `moviez-prod`
+- Namespace: `moviez`
+
+Helm provides:
+- Declarative Kubernetes manifests
+- Environment-specific configuration via `values.yaml`
+- Versioned releases
+- Easy rollback using:
+  ```
+  helm rollback moviez-prod <revision>
+  ```
 
 ---
 
 ## Kubernetes Deployment Details
 
-* **Namespace:** `moviez`
-* **Deployment:**
+- **Namespace:** `moviez`
+- **Deployments**
+  - Separate frontend and backend containers
+  - Multiple replicas for high availability
+- **Services**
+  - ClusterIP for internal communication
+- **Ingress**
+  - Traefik Ingress Controller
+  - Host-based routing using `moviezlist.site`
+  - `/api` traffic routed internally to backend service
 
-  * Runs frontend and backend containers
-  * Multiple replicas for availability
-* **Service:**
+---
 
-  * ClusterIP for internal routing
-* **Ingress:**
+## Monitoring & Observability
 
-  * Traefik Ingress Controller
-  * Host-based routing using `moviezlist.site`
+### Prometheus
+- Deployed via Helm in the `monitoring` namespace
+- Collects:
+  - Node metrics
+  - Pod metrics
+  - Application metrics via ServiceMonitor
+- Enables real-time cluster and application visibility
 
-The frontend serves the UI, while API requests are routed internally to the backend container.
+### Grafana
+- Connected to Prometheus as data source
+- Dashboards display:
+  - CPU and memory usage
+  - Pod restarts
+  - Application availability
+  - Performance trends
 
 ---
 
 ## Security Practices
 
 ### CI/CD Security
-
-* Dedicated IAM user created for Jenkins
-* Least-privilege access to AWS services
-* No root or admin credentials used
+- Dedicated IAM user for Jenkins
+- Least-privilege AWS access
+- No root or admin credentials used
 
 ### Secrets Management
-
-* AWS credentials, Sonar token, and kubeconfig stored securely in Jenkins Credentials
-* No secrets committed to source control
+- AWS credentials, Sonar token, and kubeconfig stored in Jenkins Credentials
+- Kubernetes Secrets used for runtime configuration
+- No secrets committed to source control
 
 ### Container Security
-
-* Trivy integrated into the pipeline
-* Builds blocked on critical vulnerabilities
+- Trivy integrated into CI pipeline
+- Builds blocked on critical vulnerabilities
 
 ---
 
 ## Code Quality (SonarCloud)
 
-* Automated analysis for:
-
-  * Bugs
-  * Code smells
-  * Test coverage
-* Results uploaded on every pipeline execution
-* Ensures maintainable and production-ready code
+- Automated analysis for:
+  - Bugs
+  - Vulnerabilities
+  - Code smells
+  - Test coverage
+- Executed on every pipeline run
+- Ensures production-ready code standards
 
 ---
 
 ## Deployment Strategy
 
-* Rolling updates via Kubernetes
-* No downtime during deployments
-* Automatic rollback protection via pipeline failure handling
+- Helm-managed rolling updates
+- Zero downtime deployments
+- Rollback supported via Helm revision history
+- Pipeline failures prevent faulty releases
 
 ---
 
@@ -169,7 +207,7 @@ The frontend serves the UI, while API requests are routed internally to the back
 
 Once the pipeline completes successfully, the application is available at:
 
-👉 **[http://moviezlist.site/](http://moviezlist.site/)**
+👉 http://moviezlist.site/
 
 No ports or additional configuration required.
 
@@ -178,9 +216,9 @@ No ports or additional configuration required.
 ## Summary
 
 This project demonstrates:
-
-* End-to-end CI/CD automation
-* Secure Docker image lifecycle
-* Kubernetes-based application deployment
-* Production-style ingress and domain routing
-* Industry best practices for DevOps workflows
+- End-to-end CI/CD automation
+- Helm-based Kubernetes application management
+- Secure container lifecycle with Trivy
+- Centralized monitoring using Prometheus & Grafana
+- Production-grade ingress and domain routing
+- Industry-standard DevOps best practices
