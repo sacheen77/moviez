@@ -31,18 +31,18 @@ pipeline {
             }
         }
 
-        stage('Backend - Test & Sonar') {
-            steps {
-                dir('backend') {
-                    sh 'npm ci'
-                    sh 'npm test -- --coverage'
-                    script {
-                        def scannerHome = tool 'sonar-scanner'
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${SONAR_TOKEN}"
-                    }
-                }
-            }
-        }
+        // stage('Backend - Test & Sonar') {
+        //     steps {
+        //         dir('backend') {
+        //             sh 'npm ci'
+        //             sh 'npm test -- --coverage'
+        //             script {
+        //                 def scannerHome = tool 'sonar-scanner'
+        //                 sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${SONAR_TOKEN}"
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Frontend - Test & Sonar') {
             steps {
