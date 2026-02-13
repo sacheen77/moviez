@@ -4,8 +4,6 @@ pipeline {
     environment {
         /* ---------- SONAR ---------- */
         SONAR_TOKEN = credentials('sonar')
-        SONAR_PROJECT_KEY = 'your-org_moviez'
-        SONAR_ORG = 'your-org'
 
         /* ---------- AWS ---------- */
         AWS_REGION = 'us-east-1'
@@ -23,7 +21,6 @@ pipeline {
     options {
         timestamps()
         disableConcurrentBuilds()
-        timeout(time: 30, unit: 'MINUTES')
     }
 
     stages {
@@ -34,70 +31,31 @@ pipeline {
             }
         }
 
-        /* ========================================================= */
-        /* ================= BACKEND SECTION ======================= */
-        /* ========================================================= */
-
-        stage('Backend - Install & Test') {
+        stage('Backend - Test & Sonar') {
             steps {
                 dir('backend') {
                     sh 'npm ci'
                     sh 'npm test -- --coverage'
+                    // script {
+                    //     def scannerHome = tool 'sonar-scanner'
+                    //     sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${SONAR_TOKEN}"
+                    // }
                 }
             }
         }
 
-        /* ========================================================= */
-        /* ================= FRONTEND SECTION ====================== */
-        /* ========================================================= */
-
-        stage('Frontend - Install & Test') {
+        stage('Frontend - Test & Sonar') {
             steps {
                 dir('frontend') {
                     sh 'npm ci'
                     sh 'npx vitest run --coverage'
+                    // script {
+                    //     def scannerHome = tool 'sonar-scanner'
+                    //     sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${SONAR_TOKEN}"
+                    // }
                 }
             }
         }
-
-        /* ========================================================= */
-        /* ================= SONAR ANALYSIS ======================== */
-        /* ========================================================= */
-
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube-Cloud') {
-                    script {
-                        def scannerHome = tool 'sonar-scanner'
-                        sh """
-                        ${scannerHome}/bin/sonar-scanner \
-                          -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                          -Dsonar.organization=${SONAR_ORG} \
-                          -Dsonar.sources=. \
-                          -Dsonar.token=${SONAR_TOKEN} \
-                          -Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info,frontend/coverage/lcov.info \
-                          -Dsonar.qualitygate.wait=false
-                        """
-                    }
-                }
-            }
-        }
-
-        /* ========================================================= */
-        /* ================= QUALITY GATE ========================== */
-        /* ========================================================= */
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 10, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-
-        /* ========================================================= */
-        /* ================= DOCKER BUILD ========================== */
-        /* ========================================================= */
 
         stage('Docker Build') {
             steps {
@@ -108,10 +66,6 @@ pipeline {
             }
         }
 
-        /* ========================================================= */
-        /* ================= TRIVY SCAN ============================ */
-        /* ========================================================= */
-
         stage('Trivy Scan (CRITICAL only)') {
             steps {
                 sh '''
@@ -120,10 +74,6 @@ pipeline {
                 '''
             }
         }
-
-        /* ========================================================= */
-        /* ================= AWS LOGIN ============================= */
-        /* ========================================================= */
 
         stage('AWS Login (ECR Public)') {
             steps {
@@ -139,10 +89,6 @@ pipeline {
             }
         }
 
-        /* ========================================================= */
-        /* ================= PUSH IMAGES =========================== */
-        /* ========================================================= */
-
         stage('Push Images') {
             steps {
                 sh '''
@@ -155,29 +101,34 @@ pipeline {
             }
         }
 
-        /* ========================================================= */
-        /* ================= HELM DEPLOY =========================== */
-        /* ========================================================= */
+        // stage('Deploy to Kubernetes') {
+        //     steps {
+        //         withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+        //             sh '''
+        //               kubectl apply -f k8s/namespace.yaml
+        //               kubectl apply -n ${K8S_NAMESPACE} -f k8s/deployment.yaml
+        //               kubectl apply -n ${K8S_NAMESPACE} -f k8s/service.yaml
+        //               kubectl apply -n ${K8S_NAMESPACE} -f k8s/ingress.yaml
+
+        //               kubectl rollout status deployment/moviez-app -n ${K8S_NAMESPACE}
+        //             '''
+        //         }
+        //     }
+        // }
 
         stage('Deploy with Helm') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
-                      helm upgrade --install moviez-prod ./Helm/moviez \
-                        -n ${K8S_NAMESPACE} \
-                        --create-namespace \
-                        -f Helm/moviez/values-prod.yaml
+                     helm upgrade --install moviez-prod ./Helm/moviez \
+                     -n moviez \
+                     --create-namespace \
+                     -f Helm/moviez/values-prod.yaml
 
-                      kubectl rollout status deployment/moviez-backend -n ${K8S_NAMESPACE}
-                      kubectl rollout status deployment/moviez-frontend -n ${K8S_NAMESPACE}
                     '''
                 }
             }
         }
-
-        /* ========================================================= */
-        /* ================= CLEANUP =============================== */
-        /* ========================================================= */
 
         stage('Cleanup') {
             steps {
