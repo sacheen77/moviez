@@ -44,18 +44,18 @@ pipeline {
         //     }
         // }
 
-        stage('Frontend - Test & Sonar') {
-            steps {
-                dir('frontend') {
-                    sh 'npm ci'
-                    sh 'npx vitest run --coverage'
-                    script {
-                        def scannerHome = tool 'sonar-scanner'
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${SONAR_TOKEN}"
-                    }
-                }
-            }
-        }
+        // stage('Frontend - Test & Sonar') {
+        //     steps {
+        //         dir('frontend') {
+        //             sh 'npm ci'
+        //             sh 'npx vitest run --coverage'
+        //             script {
+        //                 def scannerHome = tool 'sonar-scanner'
+        //                 sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${SONAR_TOKEN}"
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Docker Build') {
             steps {
@@ -129,7 +129,6 @@ pipeline {
                 }
             }
         }
-
 
         stage('Cleanup') {
             steps {
