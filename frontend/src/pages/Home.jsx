@@ -28,7 +28,7 @@ export default function Home() {
 
   return (
     <div className="container">
-      <h1 className="title">Sacheen Movie Collection</h1>
+      <h1 className="title">Movie Collection</h1>
 
       <div className="movie-grid">
         {movies.length === 0 && (
